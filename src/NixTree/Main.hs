@@ -19,6 +19,7 @@ version = VERSION_nix_tree
 
 data Opts = Opts
   { oInstallables :: [Installable],
+    oStore :: String,
     oVersion :: Bool,
     oDerivation :: Bool,
     oImpure :: Bool
@@ -45,6 +46,18 @@ optsParser =
                           "A store path or a flake reference."
                             Opts.<$$> "Paths default to \"~/.nix-profile\" and \"/var/run/current-system\""
                       )
+                )
+          )
+        <*> Opts.strOption
+          ( Opts.long "store"
+              <> Opts.metavar "STORE"
+              <> Opts.value "auto"
+              <> Opts.helpDoc
+                ( Just $
+                    Opts.vsep
+                      [ "The URL of the Nix store, e.g. \"daemon\" or \"https://cache.nixos.org\"",
+                        "See \"nix help-stores\" for supported store types and settings."
+                      ]
                 )
           )
         <*> Opts.switch (Opts.long "version" <> Opts.help "Show the nix-tree version")
@@ -92,7 +105,8 @@ main = do
   let seo =
         StoreEnvOptions
           { seoIsDerivation = opts & oDerivation,
-            seoIsImpure = opts & oImpure
+            seoIsImpure = opts & oImpure,
+            seoStoreURL = opts & oStore
           }
 
   withStoreEnv seo installables $ \env' -> do
