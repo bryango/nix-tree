@@ -19,6 +19,7 @@ version = VERSION_nix_tree
 
 data Opts = Opts
   { oInstallables :: [Installable],
+    oStore :: Maybe FilePath,
     oVersion :: Bool,
     oDerivation :: Bool,
     oImpure :: Bool
@@ -48,6 +49,17 @@ optsParser =
                             ]
                       )
                 )
+          )
+        <*> optional
+          ( Opts.strOption
+              ( Opts.long "store"
+                  <> Opts.metavar "STORE"
+                  <> Opts.helpDoc
+                    ( Just $
+                        "The URL of the Nix store, e.g. \"/nix/store\" or \"https://cache.nixos.org\""
+                          Opts.<$$> "See \"nix help-stores\" for supported store types and settings."
+                    )
+              )
           )
         <*> Opts.switch (Opts.long "version" <> Opts.help "Show the nix-tree version")
         <*> Opts.switch (Opts.long "derivation" <> Opts.help "Operate on the store derivation rather than its outputs")
@@ -96,7 +108,8 @@ main = do
   let seo =
         StoreEnvOptions
           { seoIsDerivation = opts & oDerivation,
-            seoIsImpure = opts & oImpure
+            seoIsImpure = opts & oImpure,
+            seoNixStore = mkNixStore <$> (opts & oStore)
           }
 
   withStoreEnv seo installables $ \env' -> do
