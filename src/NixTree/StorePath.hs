@@ -8,6 +8,7 @@ module NixTree.StorePath
     Installable (..),
     StoreEnv (..),
     StoreEnvOptions (..),
+    mkNixStore,
     withStoreEnv,
     seLookup,
     seAll,
@@ -160,6 +161,7 @@ getPathInfo nixStore nixVersion options names = do
                 ++ ["--impure" | options & pioIsImpure]
                 ++ ["--recursive" | options & pioIsRecursive]
                 ++ ["--derivation" | (options & pioIsDerivation) && nixVersion >= Nix2_4]
+                ++ ["--store", unNixStore nixStore]
                 ++ (if nixVersion >= Nix2_4 then ["--extra-experimental-features", "nix-command flakes"] else [])
                 ++ map (toString . installableToText) (toList names)
             )
@@ -200,7 +202,8 @@ data StoreEnv s payload = StoreEnv
 
 data StoreEnvOptions = StoreEnvOptions
   { seoIsDerivation :: Bool,
-    seoIsImpure :: Bool
+    seoIsImpure :: Bool,
+    seoNixStore :: Maybe NixStore
   }
 
 withStoreEnv ::
