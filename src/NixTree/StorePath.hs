@@ -50,15 +50,15 @@ unNixStore (NixStoreCustom fp) = fp
 
 getSystemNixStore :: IO NixStore
 getSystemNixStore = do
-      let prog = "nix-instantiate"
-          args = ["--eval", "--expr", "(builtins.storeDir)", "--json"]
-      out <-
-        readProcessStdout_ (proc prog args)
-          <&> fmap mkNixStore
-          . decode @FilePath
-      case out of
-        Nothing -> fail $ "Error interpreting output of: " ++ show (prog, args)
-        Just p -> return p
+  let prog = "nix-instantiate"
+      args = ["--eval", "--expr", "(builtins.storeDir)", "--json"]
+  out <-
+    readProcessStdout_ (proc prog args)
+      <&> fmap mkNixStore
+      . decode @FilePath
+  case out of
+    Nothing -> fail $ "Error interpreting output of: " ++ show (prog, args)
+    Just p -> return p
 
 --------------------------------------------------------------------------------
 
@@ -217,7 +217,7 @@ withStoreEnv ::
   (forall s. StoreEnv s () -> m a) ->
   m a
 withStoreEnv StoreEnvOptions {seoIsDerivation, seoIsImpure, seoNixStore} names cb = do
-  nixStore <- maybe (liftIO getSystemNixStore) return seoNixStore 
+  nixStore <- maybe (liftIO getSystemNixStore) return seoNixStore
 
   -- See: https://github.com/utdemir/nix-tree/issues/12
   nixVersion <- liftIO getNixVersion

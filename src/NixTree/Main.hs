@@ -57,8 +57,8 @@ optsParser =
                   <> Opts.helpDoc
                     ( Just $
                         Opts.vsep
-                          [ "The URL of the Nix store, e.g. \"/nix/store\" or \"https://cache.nixos.org\""
-                          , "See \"nix help-stores\" for supported store types and settings."
+                          [ "The URL of the Nix store, e.g. \"/nix/store\" or \"https://cache.nixos.org\"",
+                            "See \"nix help-stores\" for supported store types and settings."
                           ]
                     )
               )
