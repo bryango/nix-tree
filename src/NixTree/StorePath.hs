@@ -48,11 +48,8 @@ unNixStore :: NixStore -> FilePath
 unNixStore NixStore = "/nix/store/"
 unNixStore (NixStoreCustom fp) = fp
 
-getNixStore :: Maybe NixStore -> IO NixStore
-getNixStore seoNixStore =
-  case seoNixStore of
-    Just p -> return p
-    Nothing -> do
+getSystemNixStore :: IO NixStore
+getSystemNixStore = do
       let prog = "nix-instantiate"
           args = ["--eval", "--expr", "(builtins.storeDir)", "--json"]
       out <-
@@ -220,7 +217,7 @@ withStoreEnv ::
   (forall s. StoreEnv s () -> m a) ->
   m a
 withStoreEnv StoreEnvOptions {seoIsDerivation, seoIsImpure, seoNixStore} names cb = do
-  nixStore <- liftIO $ getNixStore seoNixStore
+  nixStore <- maybe (liftIO getSystemNixStore) return seoNixStore 
 
   -- See: https://github.com/utdemir/nix-tree/issues/12
   nixVersion <- liftIO getNixVersion
